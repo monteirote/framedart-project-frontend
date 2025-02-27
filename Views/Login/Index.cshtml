@@ -1,0 +1,70 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Login - Framed Art</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+</head>
+<body>
+
+    <!-- Para telas grandes (md ou maior) -->
+    <div class="container d-none d-md-flex justify-content-center align-items-center vh-100">
+        <div class="card p-4" style="width: 350px;">
+            <div class="card-body">
+                <img src="~/images/logo.jpg" alt="Logo" class="img-fluid">
+                <div class="mb-3" style="margin-top: 3rem">
+                    <label for="nomeUsuario" class="form-label"><strong>Usuário</strong></label>
+                    <input type="text" class="form-control" id="nomeUsuario" placeholder="Digite o usuário">
+                </div>
+                <div class="mb-3">
+                    <label for="senha" class="form-label"><strong>Senha</strong></label>
+                    <input type="password" class="form-control" id="senha" placeholder="Digite a Senha">
+                </div>
+                <button class="btn btn-primary w-100" onclick="FazerLogin()">Entrar</button>
+                <div class="text-center mt-3">
+                    <a href="#" class="text-decoration-none">Esqueceu a senha?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Para telas pequenas (menor que md) -->
+    <div class="container d-md-none" style="margin-top: 5rem">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card p-4">
+                    <div class="card-body">
+                        <img src="~/images/logo.jpg" alt="Logo" class="img-fluid">
+                        <div class="mb-3" style="margin-top: 3rem">
+                            <label for="nomeUsuario" class="form-label"><strong>Usuário</strong></label>
+                            <input type="text" class="form-control w-100" id="nomeUsuario" placeholder="Digite o usuário">
+                        </div>
+                        <div class="mb-3">
+                            <label for="senha" class="form-label"><strong>Senha</strong></label>
+                            <input type="password" class="form-control w-100" id="senha" placeholder="Digite a Senha">
+                        </div>
+                        <button class="btn btn-primary w-100" onclick="FazerLogin()">Entrar</button>
+                        <div class="text-center mt-3">
+                            <a href="#" class="text-decoration-none">Esqueceu a senha?</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+</body>
+</html>
+

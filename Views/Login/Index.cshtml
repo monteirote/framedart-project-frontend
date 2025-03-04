@@ -21,14 +21,14 @@
             <div class="card-body">
                 <img src="~/images/logo.jpg" alt="Logo" class="img-fluid">
                 <div class="mb-3" style="margin-top: 3rem">
-                    <label for="nomeUsuario" class="form-label"><strong>Usuário</strong></label>
-                    <input type="text" class="form-control" id="nomeUsuario" placeholder="Digite o usuário">
+                    <label for="usuarioMD" class="form-label"><strong>Usuário</strong></label>
+                    <input type="text" class="form-control" id="usuarioMD" placeholder="Digite o usuário">
                 </div>
                 <div class="mb-3">
-                    <label for="senha" class="form-label"><strong>Senha</strong></label>
-                    <input type="password" class="form-control" id="senha" placeholder="Digite a Senha">
+                    <label for="senhaMD" class="form-label"><strong>Senha</strong></label>
+                    <input type="password" class="form-control" id="senhaMD" placeholder="Digite a Senha">
                 </div>
-                <button class="btn btn-primary w-100" onclick="FazerLogin()">Entrar</button>
+                <button class="btn btn-primary w-100" onclick="Login(true)">Entrar</button>
                 <div class="text-center mt-3">
                     <a href="#" class="text-decoration-none">Esqueceu a senha?</a>
                 </div>
@@ -44,14 +44,14 @@
                     <div class="card-body">
                         <img src="~/images/logo.jpg" alt="Logo" class="img-fluid">
                         <div class="mb-3" style="margin-top: 3rem">
-                            <label for="nomeUsuario" class="form-label"><strong>Usuário</strong></label>
-                            <input type="text" class="form-control w-100" id="nomeUsuario" placeholder="Digite o usuário">
+                            <label for="usuarioSM" class="form-label"><strong>Usuário</strong></label>
+                            <input type="text" class="form-control w-100" id="usuarioSM" placeholder="Digite o usuário">
                         </div>
                         <div class="mb-3">
-                            <label for="senha" class="form-label"><strong>Senha</strong></label>
-                            <input type="password" class="form-control w-100" id="senha" placeholder="Digite a Senha">
+                            <label for="senhaSM" class="form-label"><strong>Senha</strong></label>
+                            <input type="password" class="form-control w-100" id="senhaSM" placeholder="Digite a Senha">
                         </div>
-                        <button class="btn btn-primary w-100" onclick="FazerLogin()">Entrar</button>
+                        <button class="btn btn-primary w-100" onclick="Login(false)">Entrar</button>
                         <div class="text-center mt-3">
                             <a href="#" class="text-decoration-none">Esqueceu a senha?</a>
                         </div>
@@ -63,8 +63,37 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/login.js" asp-append-version="true"></script>
 
+    <script type="text/javascript">
+
+        function Login (icTelaGrande) { 
+            
+            let campoUsuario = icTelaGrande ? '#usuarioMD' : '#usuarioSM';
+            let campoSenha = icTelaGrande ? '#senhaMD' : '#senhaSM';
+
+            var usuario = $(campoUsuario).val();
+            var senha = $(campoSenha).val();
+
+            $.ajax({
+                url: '@Url.Action("Login", "Login")', 
+                type: "POST",
+                data: { usuario: usuario, senha: senha },
+                async: true,
+                success: function (response) {
+                    if (response.success) {
+                        window.location.href = response.redirectUrl;
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert("Erro ao tentar fazer login. Tente novamente!");
+                }
+            });
+        }
+
+    </script>
 </body>
 </html>
 

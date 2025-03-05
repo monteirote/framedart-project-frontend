@@ -1,0 +1,56 @@
+﻿<style>
+    label {
+        font-size: 1.5rem
+    }
+
+    .subtitulo {
+        font-size: 2rem;
+        font-weight: 500
+    }
+</style>
+
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Novo Quadro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Conteúdo do modal aqui...</p>
+                <!-- Você pode adicionar um formulário ou outros elementos -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="body-content mb-5">
+
+    <h1 class="text-center text-lg-start">Adicionar Ordem de Servico</h1>
+
+    <div class="row mt-4">
+        <div class="form-group col-lg-6 col-sm-12">
+            <label for="exampleFormControlInput1">Cliente</label>
+            <input type="email" class="form-control" id="email1" placeholder="name@example.com">
+            <small>Para adicionar um cliente, clique <a href="">aqui</a></small>
+        </div>
+
+        <div class="form-group col-lg-6 col-sm-12 mt-3 mt-lg-0">
+            <label for="exampleFormControlInput2">Data de Entrega</label>
+            <input type="email" class="form-control" id="email2" placeholder="name@example.com">
+        </div>
+    </div>
+
+
+    <div class="mt-4 d-flex flex-row align-items-center">
+        <p class="subtitulo m-0 me-3">Quadros</p>
+        <button class="btn-secondary" data-bs-toggle="modal" data-bs-target="#myModal"><i class="fa fa-add"></i></button>
+    </div>
+
+
+</div>

@@ -1,4 +1,5 @@
 ﻿<style>
+
     label {
         font-size: 1.5rem
     }
@@ -7,18 +8,74 @@
         font-size: 2rem;
         font-weight: 500
     }
+
 </style>
 
 <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="myModalLabel">Novo Quadro</h5>
+                <h5 class="modal-title text-center" id="myModalLabel">Novo Quadro</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <p>Conteúdo do modal aqui...</p>
-                <!-- Você pode adicionar um formulário ou outros elementos -->
+            <div class="modal-body px-5">
+                <div class="row mt-4">
+                    <div class="form-group col-lg-4 col-sm-12">
+                        <label for="vlAltura">Altura</label>
+                        <input type="number" class="form-control" id="vlAltura" placeholder="Em centimetros">
+                    </div>
+
+                    <div class="form-group col-lg-4 col-sm-12 mt-3 mt-lg-0">
+                        <label for="vlLargura">Largura</label>
+                        <input type="number" class="form-control" id="vlLargura" placeholder="name@example.com">
+                    </div>
+
+                    <div class="form-group col-lg-4 col-sm-12 mt-3 mt-lg-0">
+                        <label for="exampleFormControlInput2">Quantidade</label>
+                        <input type="number" class="form-control" id="vlQuantidade" placeholder="name@example.com" value="1">
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="form-group col-lg-6 col-sm-12">
+                        <label for="cdFundo">Fundo</label><br />
+                        <select id="mySelect2" style="width: 100%">
+                            <option value="1">Item 1</option>
+                            <option value="2">Item 2</option>
+                            <option value="3">Item 3</option>
+                        </select>
+
+                    </div>
+
+                    <div class="form-group col-lg-6 col-sm-12 mt-3 mt-lg-0">
+                        <label for="cdMoldura">Moldura</label>
+                        <input type="email" class="form-control" id="cdMoldura" placeholder="name@example.com">
+                    </div>
+
+                </div>
+
+                <div class="row mt-4">
+                    <div class="form-group col-lg-6 col-sm-12">
+                        <label for="cdVidro">Vidro</label>
+                        <input type="email" class="form-control" id="cdVidro" placeholder="Em centimetros">
+                    </div>
+
+                    <div class="form-group col-lg-6 col-sm-12 mt-3 mt-lg-0">
+                        <label for="cdPapel">Papel</label>
+                        <input type="email" class="form-control" id="cdPapel" placeholder="name@example.com">
+                    </div>
+                </div>
+
+                <div class="mb-3 mt-3">
+                    <label for="inputImagem" class="form-label">Escolha as imagens</label>
+                    <input type="file" class="form-control" id="inputImagem" accept="image/*" multiple>
+                    <small class="text-muted">Apenas imagens (JPG, PNG, GIF, etc.).</small>
+                </div>
+
+                <div id="previewContainer" class="text-center mt-3" style="display: none;">
+                    <p><strong>Prévia das Imagens:</strong></p>
+                    <div id="previewImagens" class="d-flex flex-wrap gap-2"></div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -54,3 +111,86 @@
 
 
 </div>
+
+<script>
+
+    // Evento para carregar a imagem e exibir o preview
+    document.getElementById("inputImagem").addEventListener("change", function (event) {
+        var btnSalvar = document.getElementById("btnSalvar");
+        var previewContainer = document.getElementById("previewContainer");
+        var previewImagens = document.getElementById("previewImagens");
+
+        var files = event.target.files;
+
+        previewImagens.innerHTML = "";
+
+        // Verifica se o número de arquivos está dentro do limite (máximo 5 imagens)
+        if (files.length > 0 && files.length <= 5) {
+            previewContainer.style.display = "block";
+
+            // Exibe as imagens selecionadas
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+
+                if (file.type.startsWith("image/")) {
+                    let reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        let img = document.createElement("img");
+                        img.src = e.target.result;
+                        img.className = "img-thumbnail";
+                        img.style = "width: 100px; height: auto; border-radius: 5px; margin: 5px;";
+
+                        previewImagens.appendChild(img);
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Habilita o botão salvar se a quantidade de imagens for válida
+            btnSalvar.disabled = false;
+        } else {
+            previewContainer.style.display = "none";
+            btnSalvar.disabled = true;
+
+            alert("Selecione no máximo 5 imagens.");
+        }
+    });
+
+    // Inicializando o Select2
+    $(document).ready(function () {
+        $('#mySelect2').select2({
+            placeholder: 'Digite para buscar...',
+            minimumInputLength: 1, // número mínimo de caracteres para disparar a busca
+            ajax: {
+                url: 'URL_DO_SEU_SERVIÇO_DE_BUSCA', // Aqui você coloca a URL que vai retornar os dados
+                dataType: 'json',
+                delay: 250, // tempo de espera entre as requisições
+                data: function (params) {
+                    return {
+                        q: params.term // a pesquisa será feita pelo valor da pesquisa 'term'
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.items // o formato esperado pela select2
+                    };
+                },
+                cache: true
+            }
+        });
+    });
+
+    // Função para adicionar um quadro (adapte conforme sua lógica)
+    function AdicionarQuadro() {
+        var quadro = {
+            // Adicione as propriedades do quadro que você deseja
+        };
+
+        // Aqui você pode fazer algo com o quadro, como adicionar ao DOM ou enviar para um servidor
+        console.log(quadro);
+    }
+
+</script>
+

@@ -9,60 +9,68 @@
         font-weight: 500
     }
 
+    .select2-selection__rendered {
+        line-height: 35px !important;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 37px !important;
+        width: 100% !important;
+    }
+
+    .select2-selection__arrow {
+        height: 37px !important;
+    }
 </style>
 
-<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+
+
+<div class="modal fade" id="modalAddQuadro" tabindex="-1" aria-labelledby="modalAddQuadroLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title text-center" id="myModalLabel">Novo Quadro</h5>
+                <h5 class="modal-title text-center" id="modalAddQuadroLabel">Novo Quadro</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body px-5">
-                <div class="row mt-4">
+                <div class="row mt-2">
                     <div class="form-group col-lg-4 col-sm-12">
                         <label for="vlAltura">Altura</label>
-                        <input type="number" class="form-control" id="vlAltura" placeholder="Em centimetros">
+                        <input type="number" class="form-control" id="vlAltura" placeholder="Em centímetros">
                     </div>
 
                     <div class="form-group col-lg-4 col-sm-12 mt-3 mt-lg-0">
                         <label for="vlLargura">Largura</label>
-                        <input type="number" class="form-control" id="vlLargura" placeholder="name@example.com">
+                        <input type="number" class="form-control" id="vlLargura" placeholder="Em centímetros">
                     </div>
 
                     <div class="form-group col-lg-4 col-sm-12 mt-3 mt-lg-0">
                         <label for="exampleFormControlInput2">Quantidade</label>
-                        <input type="number" class="form-control" id="vlQuantidade" placeholder="name@example.com" value="1">
+                        <input type="number" class="form-control" id="vlQuantidade" placeholder="Quantidade de quadros" value="1">
                     </div>
                 </div>
 
                 <div class="row mt-4">
                     <div class="form-group col-lg-6 col-sm-12">
                         <label for="cdFundo">Fundo</label><br />
-                        <select id="mySelect2" style="width: 100%">
-                            <option value="1">Item 1</option>
-                            <option value="2">Item 2</option>
-                            <option value="3">Item 3</option>
-                        </select>
-
+                        <select id="cdFundo" class="form-control" style="width: 100%"></select>
                     </div>
 
                     <div class="form-group col-lg-6 col-sm-12 mt-3 mt-lg-0">
-                        <label for="cdMoldura">Moldura</label>
-                        <input type="email" class="form-control" id="cdMoldura" placeholder="name@example.com">
+                        <label for="cdMoldura">Moldura</label><br />
+                        <select id="cdMoldura" class="form-control" style="width: 100%; font-size: 2rem"></select>                    
                     </div>
-
                 </div>
 
                 <div class="row mt-4">
                     <div class="form-group col-lg-6 col-sm-12">
-                        <label for="cdVidro">Vidro</label>
-                        <input type="email" class="form-control" id="cdVidro" placeholder="Em centimetros">
+                        <label for="cdVidro">Vidro</label><br />
+                        <select id="cdVidro" class="form-control" style="width: 100%; font-size: 2rem"></select>
                     </div>
 
                     <div class="form-group col-lg-6 col-sm-12 mt-3 mt-lg-0">
-                        <label for="cdPapel">Papel</label>
-                        <input type="email" class="form-control" id="cdPapel" placeholder="name@example.com">
+                        <label for="cdPapel">Papel</label><br />
+                        <select id="cdPapel" class="form-control" style="width: 100%; font-size: 2rem"></select>
                     </div>
                 </div>
 
@@ -77,9 +85,10 @@
                     <div id="previewImagens" class="d-flex flex-wrap gap-2"></div>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-primary">Salvar</button>
+                <button type="button" class="btn btn-primary" onclick="adicionarQuadro()">Salvar</button>
             </div>
         </div>
     </div>
@@ -92,29 +101,29 @@
 
     <div class="row mt-4">
         <div class="form-group col-lg-6 col-sm-12">
-            <label for="exampleFormControlInput1">Cliente</label>
-            <input type="email" class="form-control" id="email1" placeholder="name@example.com">
+            <label for="exampleFormControlInput1">Cliente</label><br />
+            <select class="form-control" id="cdCliente"></select>
             <small>Para adicionar um cliente, clique <a href="">aqui</a></small>
         </div>
 
         <div class="form-group col-lg-6 col-sm-12 mt-3 mt-lg-0">
             <label for="exampleFormControlInput2">Data de Entrega</label>
-            <input type="email" class="form-control" id="email2" placeholder="name@example.com">
+            <input type="datetime" class="form-control" id="dtEntrega" placeholder="dia/mês/ano">
         </div>
     </div>
 
 
     <div class="mt-4 d-flex flex-row align-items-center">
         <p class="subtitulo m-0 me-3">Quadros</p>
-        <button class="btn-secondary" data-bs-toggle="modal" data-bs-target="#myModal"><i class="fa fa-add"></i></button>
+        <button class="btn-secondary" data-bs-toggle="modal" data-bs-target="#modalAddQuadro"><i class="fa fa-add"></i></button>
     </div>
-
 
 </div>
 
 <script>
 
-    // Evento para carregar a imagem e exibir o preview
+    const defaultPlaceholder = 'Digite os 3 primeiros caracteres';
+
     document.getElementById("inputImagem").addEventListener("change", function (event) {
         var btnSalvar = document.getElementById("btnSalvar");
         var previewContainer = document.getElementById("previewContainer");
@@ -124,11 +133,9 @@
 
         previewImagens.innerHTML = "";
 
-        // Verifica se o número de arquivos está dentro do limite (máximo 5 imagens)
         if (files.length > 0 && files.length <= 5) {
             previewContainer.style.display = "block";
 
-            // Exibe as imagens selecionadas
             for (let i = 0; i < files.length; i++) {
                 let file = files[i];
 
@@ -148,7 +155,6 @@
                 }
             }
 
-            // Habilita o botão salvar se a quantidade de imagens for válida
             btnSalvar.disabled = false;
         } else {
             previewContainer.style.display = "none";
@@ -158,39 +164,47 @@
         }
     });
 
-    // Inicializando o Select2
     $(document).ready(function () {
-        $('#mySelect2').select2({
-            placeholder: 'Digite para buscar...',
-            minimumInputLength: 1, // número mínimo de caracteres para disparar a busca
-            ajax: {
-                url: 'URL_DO_SEU_SERVIÇO_DE_BUSCA', // Aqui você coloca a URL que vai retornar os dados
-                dataType: 'json',
-                delay: 250, // tempo de espera entre as requisições
-                data: function (params) {
-                    return {
-                        q: params.term // a pesquisa será feita pelo valor da pesquisa 'term'
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.items // o formato esperado pela select2
-                    };
-                },
-                cache: true
-            }
+
+        let date = new Date();
+        let day = String(date.getDate()).padStart(2, '0');
+        let month = String(date.getMonth() + 1).padStart(2, '0');
+        let year = date.getFullYear();
+
+        $('#dtEntrega').val(`${day}/${month}/${year}`);
+
+        $('#cdCliente').select2({
+            placeholder: defaultPlaceholder
         });
+
+        $('#cdFundo').select2({
+            dropdownParent: $('#modalAddQuadro'),
+            placeholder: defaultPlaceholder
+        });
+
+        $('#cdMoldura').select2({
+            dropdownParent: $('#modalAddQuadro'),
+            placeholder: defaultPlaceholder
+        });
+
+        $('#cdPapel').select2({
+            dropdownParent: $('#modalAddQuadro'),
+            placeholder: defaultPlaceholder
+
+        });
+
+        $('#cdVidro').select2({
+            dropdownParent: $('#modalAddQuadro'),
+            placeholder: defaultPlaceholder
+        });
+
     });
 
-    // Função para adicionar um quadro (adapte conforme sua lógica)
-    function AdicionarQuadro() {
-        var quadro = {
-            // Adicione as propriedades do quadro que você deseja
-        };
+    function adicionarQuadro () {
 
-        // Aqui você pode fazer algo com o quadro, como adicionar ao DOM ou enviar para um servidor
-        console.log(quadro);
     }
+
+
 
 </script>
 

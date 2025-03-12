@@ -88,7 +88,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-primary" onclick="adicionarQuadro()">Salvar</button>
+                <button type="button" class="btn btn-primary" onclick="SalvarQuadro()">Salvar</button>
             </div>
         </div>
     </div>
@@ -118,11 +118,26 @@
         <button class="btn-secondary" data-bs-toggle="modal" data-bs-target="#modalAddQuadro"><i class="fa fa-add"></i></button>
     </div>
 
+    <table class="table table-striped table-hover table-bordered text-center align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Altura</th>
+                <th>Largura</th>
+                <th>Quantidade</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody id="bodyTableQuadros">
+        </tbody>
+    </table>
+
+
 </div>
 
 <script>
 
     const defaultPlaceholder = 'Digite os 3 primeiros caracteres';
+    const quadros = [];
 
     document.getElementById("inputImagem").addEventListener("change", function (event) {
         var btnSalvar = document.getElementById("btnSalvar");
@@ -174,37 +189,157 @@
         $('#dtEntrega').val(`${day}/${month}/${year}`);
 
         $('#cdCliente').select2({
-            placeholder: defaultPlaceholder
+            placeholder: defaultPlaceholder,
+            minimumInputLength: 3,
+            ajax: {
+                url: '/Order/SearchCustomer',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { text: params.term }; 
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.data
+                    };
+                },
+                cache: true,
+                async: true
+            }
         });
 
         $('#cdFundo').select2({
             dropdownParent: $('#modalAddQuadro'),
-            placeholder: defaultPlaceholder
+            placeholder: defaultPlaceholder,
+            minimumInputLength: 3,
+            ajax: {
+                url: '/Order/SearchMaterial',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { text: params.term, type: 'Background' };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.data
+                    };
+                },
+                cache: true,
+                async: true
+            }
         });
 
         $('#cdMoldura').select2({
             dropdownParent: $('#modalAddQuadro'),
-            placeholder: defaultPlaceholder
+            placeholder: defaultPlaceholder,
+            minimumInputLength: 3,
+            ajax: {
+                url: '/Order/SearchMaterial',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { text: params.term, type: 'Frame' };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.data
+                    };
+                },
+                cache: true,
+                async: true
+            }
         });
 
         $('#cdPapel').select2({
             dropdownParent: $('#modalAddQuadro'),
-            placeholder: defaultPlaceholder
-
+            placeholder: defaultPlaceholder,
+            minimumInputLength: 3,
+            ajax: {
+                url: '/Order/SearchMaterial',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { text: params.term, type: 'Paper' };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.data
+                    };
+                },
+                cache: true,
+                async: true
+            }
         });
 
         $('#cdVidro').select2({
             dropdownParent: $('#modalAddQuadro'),
-            placeholder: defaultPlaceholder
+            placeholder: defaultPlaceholder,
+            minimumInputLength: 3,
+            ajax: {
+                url: '/Order/SearchMaterial',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { text: params.term, type: 'Glass' };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.data
+                    };
+                },
+                cache: true,
+                async: true
+            }
         });
 
     });
 
-    function adicionarQuadro () {
+    function ValidarQuadro (quadro) {
 
+        var resultado = true;
+
+        if (quadro.altura <= 0 || quadro.altura == '' || quadro.largura <= 0 || quadro.largura == '') {
+            toastr.error('A altura e a largura são campos obrigatórios e devem ser números positivos', "Erro");
+            resultado = false;
+        }
+
+        if (quadro.cdFundo == 0 || quadro.cdMoldura == 0) {
+            toastr.error(`Os campos 'Fundo' e 'Moldura' são obrigatórios.`, "Erro");
+            resultado = false;
+        }
+
+        return resultado;
     }
 
+    function AdicionarQuadroTabela (quadro) {
+        let registroQuadro = `<tr><td>${quadro.altura}</td><td>${quadro.largura}</td><td>${quadro.quantidade}</td><td>I</td></tr>`;
+        $('#bodyTableQuadros').append(registroQuadro);
+    }
 
+    function SalvarQuadro() {
+
+        let quadro = {
+            altura: $("#vlAltura").val() || 0,
+            largura: $("#vlLargura").val() || 0,
+            quantidade: $("#vlQuantidade").val() || 0,
+            cdFundo: $('#cdFundo').val() || 0,
+            cdMoldura: $('#cdMoldura').val() || 0,
+            cdVidro: $('#cdVidro').val() || 0,
+            cdPapel: $('#cdPapel').val() || 0,
+            imagens: $("#inputImagem")[0].files
+        };
+
+        var quadroValido = ValidarQuadro(quadro);
+
+        if (!quadroValido)
+            return;
+
+        quadros.push(quadro);
+
+        AdicionarQuadroTabela(quadro);
+
+        console.log(quadros);
+    }
 
 </script>
 

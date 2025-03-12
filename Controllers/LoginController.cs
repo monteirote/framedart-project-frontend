@@ -4,18 +4,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace framedart_project_frontend.Controllers {
 
+    [Route("/login")]
     public class LoginController : Controller {
 
         private readonly IAuthService _authService;
 
-        public LoginController (IAuthService authService) {
+        public LoginController (IAuthService authService) { 
             _authService = authService;
         }
 
+        [HttpGet("verify-token")]
         public ActionResult VerifyToken() {
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
         public IActionResult Index() {
             return View();
         }

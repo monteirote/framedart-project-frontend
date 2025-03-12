@@ -8,7 +8,10 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<AuthService>();
+builder.Services.AddHttpClient<SearchService>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISearchService, SearchService>();
 
 builder.Services.AddControllersWithViews();
 
@@ -31,8 +34,16 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Login}/{action=VerifyToken}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Login}/{action=Index}");
+
+app.Use(async (context, next) => {
+    if (context.Request.Path == "/")
+    {
+        context.Response.Redirect("/Login");
+        return;
+    }
+    await next();
+});
+
 
 app.Run();

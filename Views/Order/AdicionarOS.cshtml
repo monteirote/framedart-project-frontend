@@ -137,28 +137,38 @@
             </tr>
         </thead>
         <tbody id="bodyTableQuadros">
+            <tr><td colspan="4" style="color: red">Sem quadros adicionados</td></tr>
         </tbody>
     </table>
 
 
 </div>
 
+<script src="~/js/AdicionarOS_JS.js" ></script>
 <script>
 
     const defaultPlaceholder = 'Digite os 3 primeiros caracteres';
     const quadros = [];
+    var imgsQuadroAtual = [];
 
-    function IniciarSelectsModal () {
-        $('#cdFundo').select2({
-            dropdownParent: $('#modalQuadro'),
+    $(document).ready(function () {
+
+        let date = new Date();
+        let day = String(date.getDate()).padStart(2, '0');
+        let month = String(date.getMonth() + 1).padStart(2, '0');
+        let year = date.getFullYear();
+
+        $('#dtEntrega').val(`${day}/${month}/${year}`);
+
+        $('#cdCliente').select2({
             placeholder: defaultPlaceholder,
             minimumInputLength: 3,
             ajax: {
-                url: '/Order/SearchMaterial',
+                url: '/Order/SearchCustomer',
                 dataType: 'json',
                 delay: 250,
                 data: function (params) {
-                    return { text: params.term, type: 'Background' };
+                    return { text: params.term };
                 },
                 processResults: function (data) {
                     return {
@@ -170,71 +180,7 @@
             }
         });
 
-        $('#cdMoldura').select2({
-            dropdownParent: $('#modalQuadro'),
-            placeholder: defaultPlaceholder,
-            minimumInputLength: 3,
-            ajax: {
-                url: '/Order/SearchMaterial',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { text: params.term, type: 'Frame' };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.data
-                    };
-                },
-                cache: true,
-                async: true
-            }
-        });
-
-        $('#cdPapel').select2({
-            dropdownParent: $('#modalQuadro'),
-            placeholder: defaultPlaceholder,
-            minimumInputLength: 3,
-            ajax: {
-                url: '/Order/SearchMaterial',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { text: params.term, type: 'Paper' };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.data
-                    };
-                },
-                cache: true,
-                async: true
-            }
-        });
-
-        $('#cdVidro').select2({
-            dropdownParent: $('#modalQuadro'),
-            placeholder: defaultPlaceholder,
-            minimumInputLength: 3,
-            ajax: {
-                url: '/Order/SearchMaterial',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { text: params.term, type: 'Glass' };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.data
-                    };
-                },
-                cache: true,
-                async: true
-            }
-        });
-    }
-
-
+    })
 
     function AbrirModalAdicionar () { 
         HabilitarCampos();
@@ -284,6 +230,7 @@
         var previewImagens = document.getElementById("previewImagens");
 
         var files = event.target.files;
+        imgsQuadroAtual = files;
 
         previewImagens.innerHTML = "";
 
@@ -321,39 +268,7 @@
                     reader.readAsDataURL(file);
                 }
             }
-
         }
-    });
-
-    $(document).ready(function () {
-
-        let date = new Date();
-        let day = String(date.getDate()).padStart(2, '0');
-        let month = String(date.getMonth() + 1).padStart(2, '0');
-        let year = date.getFullYear();
-
-        $('#dtEntrega').val(`${day}/${month}/${year}`);
-
-        $('#cdCliente').select2({
-            placeholder: defaultPlaceholder,
-            minimumInputLength: 3,
-            ajax: {
-                url: '/Order/SearchCustomer',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { text: params.term }; 
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.data
-                    };
-                },
-                cache: true,
-                async: true
-            }
-        });
-
     });
 
     function ValidarQuadro (quadro) {
@@ -370,9 +285,9 @@
 
     function AdicionarQuadroTabela (quadro) {
         var indexRegistro = quadros.length - 1;
-        console.log(quadros);
-        console.log(indexRegistro);
         let registroQuadro = `<tr><td>${quadro.altura}x${quadro.largura}</td><td>${quadro.quantidade}</td><td onclick="ExibirInfo(${indexRegistro})"><i class="fa-solid fa-circle-info"></i></td><td onclick="ExcluirRegistro(${indexRegistro})"><i class="fa-solid fa-trash"></i></td></tr>`;
+
+
         $('#bodyTableQuadros').append(registroQuadro);
     }
 
@@ -398,7 +313,7 @@
                 id: $('#cdPapel').val() || 0,
                 text: $("#cdPapel option:selected").text() || '',
             },
-            imagens: $("#inputImagem")[0].files
+            imagens: Array.from($('#inputImagem').prop('files'))
         };
 
         var quadroValido = ValidarQuadro(quadro);
@@ -431,12 +346,13 @@
 
         $("#previewImagens").empty();
         $("#previewContainer").hide();
-
     }
 
     function ExibirInfo (index) {
 
         let quadro = quadros[index];
+
+        console.log(quadro);
 
         $("#vlAltura").val(quadro.altura);
         $("#vlLargura").val(quadro.largura);
@@ -465,6 +381,7 @@
 
         previewImagens.innerHTML = "";
         previewImagens.style.display = 'block';
+        previewContainer.style.display = 'block';
 
         for (let i = 0; i < quadro.imagens.length; i++) {
             let file = quadro.imagens[i];
@@ -477,7 +394,6 @@
                     img.src = e.target.result;
                     img.className = "img-thumbnail";
                     img.style = "width: 100px; height: auto; border-radius: 5px; margin: 5px;";
-                    console.log(img);
                     previewImagens.appendChild(img);
                 };
 
@@ -485,20 +401,24 @@
             }
         }
 
-
-
-
-
         $("#inputImagem").css('display', 'none');
-
-
-        console.log(quadro);
 
         $('#modalQuadro').modal('show');
     }
 
-    function ExcluirRegistro (index) {
-        console.log(index);
+    function ExcluirRegistro(index) {
+        quadros.splice(index, 1);
+
+        let quadrosHTML = document.getElementById('bodyTableQuadros');
+
+        let item = quadrosHTML.children[index];
+
+        if (item)
+            quadrosHTML.removeChild(item);
+
+        if (quadrosHTML.children.length == 0) {
+            $('#bodyTableQuadros').html('<tr><td colspan="4" style="color: red">Sem quadros adicionados</td></tr>');
+        }
     }
 
 

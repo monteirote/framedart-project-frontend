@@ -24,12 +24,12 @@
 </style>
 
 
-
-<div class="modal fade" id="modalAddQuadro" tabindex="-1" aria-labelledby="modalAddQuadroLabel" aria-hidden="true">
+<!-- MODAL QUADRO -->
+<div class="modal fade" id="modalQuadro" tabindex="-1" aria-labelledby="modalQuadroLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title text-center" id="modalAddQuadroLabel">Novo Quadro</h5>
+                <h5 class="modal-title text-center" id="modalQuadroLabel">Novo Quadro</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body px-5">
@@ -53,12 +53,14 @@
                 <div class="row mt-4">
                     <div class="form-group col-lg-6 col-sm-12">
                         <label for="cdFundo">Fundo</label><br />
-                        <select id="cdFundo" class="form-control" style="width: 100%"></select>
+                        <select id="cdFundo" class="form-control" style="width: 100%" hidden></select>
+                        <input type="text" id="cdFundoExibicao" class="form-control" disabled style="display: none" />
                     </div>
 
                     <div class="form-group col-lg-6 col-sm-12 mt-3 mt-lg-0">
                         <label for="cdMoldura">Moldura</label><br />
-                        <select id="cdMoldura" class="form-control" style="width: 100%; font-size: 2rem"></select>                    
+                        <select id="cdMoldura" class="form-control" style="width: 100%; font-size: 2rem"></select>
+                        <input type="text" id="cdMolduraExibicao" class="form-control" disabled style="display: none" />
                     </div>
                 </div>
 
@@ -66,15 +68,17 @@
                     <div class="form-group col-lg-6 col-sm-12">
                         <label for="cdVidro">Vidro</label><br />
                         <select id="cdVidro" class="form-control" style="width: 100%; font-size: 2rem"></select>
+                        <input type="text" id="cdVidroExibicao" class="form-control" disabled style="display: none" />
                     </div>
 
                     <div class="form-group col-lg-6 col-sm-12 mt-3 mt-lg-0">
                         <label for="cdPapel">Papel</label><br />
                         <select id="cdPapel" class="form-control" style="width: 100%; font-size: 2rem"></select>
+                        <input type="text" id="cdPapelExibicao" class="form-control" disabled style="display: none" />
                     </div>
                 </div>
 
-                <div class="mb-3 mt-3">
+                <div class="mb-3 mt-3" id="divInputFotos">
                     <label for="inputImagem" class="form-label">Escolha as imagens</label>
                     <input type="file" class="form-control" id="inputImagem" accept="image/*" multiple>
                     <small class="text-muted">Apenas imagens (JPG, PNG, GIF, etc.).</small>
@@ -94,36 +98,41 @@
     </div>
 </div>
 
-
 <div class="body-content mb-5">
 
     <h1 class="text-center text-lg-start">Adicionar Ordem de Servico</h1>
 
     <div class="row mt-4">
+        <div class="form-group col-lg-3 col-sm-12 mt-3 mt-lg-0">
+            <label for="exampleFormControlInput2">Numero da OS</label>
+            <input type="text" class="form-control">
+        </div>
+
+        <div class="form-group col-lg-3 col-sm-12 mt-3 mt-lg-0">
+            <label for="exampleFormControlInput2">Data de Entrega</label>
+            <input type="datetime" class="form-control" id="dtEntrega" placeholder="dia/mês/ano">
+        </div>
+
         <div class="form-group col-lg-6 col-sm-12">
             <label for="exampleFormControlInput1">Cliente</label><br />
             <select class="form-control" id="cdCliente"></select>
             <small>Para adicionar um cliente, clique <a href="">aqui</a></small>
         </div>
 
-        <div class="form-group col-lg-6 col-sm-12 mt-3 mt-lg-0">
-            <label for="exampleFormControlInput2">Data de Entrega</label>
-            <input type="datetime" class="form-control" id="dtEntrega" placeholder="dia/mês/ano">
-        </div>
     </div>
 
 
     <div class="mt-4 d-flex flex-row align-items-center">
         <p class="subtitulo m-0 me-3">Quadros</p>
-        <button class="btn-secondary" data-bs-toggle="modal" data-bs-target="#modalAddQuadro"><i class="fa fa-add"></i></button>
+        <button class="btn-secondary" onclick="AbrirModalAdicionar()"><i class="fa fa-add"></i></button>
     </div>
 
     <table class="table table-striped table-hover table-bordered text-center align-middle">
         <thead class="table-dark">
             <tr>
-                <th>Altura</th>
-                <th>Largura</th>
+                <th>Tamanho (AxL)</th>
                 <th>Quantidade</th>
+                <th>&nbsp;</th>
                 <th>&nbsp;</th>
             </tr>
         </thead>
@@ -139,8 +148,138 @@
     const defaultPlaceholder = 'Digite os 3 primeiros caracteres';
     const quadros = [];
 
+    function IniciarSelectsModal () {
+        $('#cdFundo').select2({
+            dropdownParent: $('#modalQuadro'),
+            placeholder: defaultPlaceholder,
+            minimumInputLength: 3,
+            ajax: {
+                url: '/Order/SearchMaterial',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { text: params.term, type: 'Background' };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.data
+                    };
+                },
+                cache: true,
+                async: true
+            }
+        });
+
+        $('#cdMoldura').select2({
+            dropdownParent: $('#modalQuadro'),
+            placeholder: defaultPlaceholder,
+            minimumInputLength: 3,
+            ajax: {
+                url: '/Order/SearchMaterial',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { text: params.term, type: 'Frame' };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.data
+                    };
+                },
+                cache: true,
+                async: true
+            }
+        });
+
+        $('#cdPapel').select2({
+            dropdownParent: $('#modalQuadro'),
+            placeholder: defaultPlaceholder,
+            minimumInputLength: 3,
+            ajax: {
+                url: '/Order/SearchMaterial',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { text: params.term, type: 'Paper' };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.data
+                    };
+                },
+                cache: true,
+                async: true
+            }
+        });
+
+        $('#cdVidro').select2({
+            dropdownParent: $('#modalQuadro'),
+            placeholder: defaultPlaceholder,
+            minimumInputLength: 3,
+            ajax: {
+                url: '/Order/SearchMaterial',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { text: params.term, type: 'Glass' };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.data
+                    };
+                },
+                cache: true,
+                async: true
+            }
+        });
+    }
+
+
+
+    function AbrirModalAdicionar () { 
+        HabilitarCampos();
+
+        $('#cdFundo').show().select2();
+        $('#cdMoldura').show().select2();
+        $('#cdVidro').show().select2();
+        $('#cdPapel').show().select2();
+
+        $('#cdFundoExibicao').css('display', 'none');
+        $('#cdMolduraExibicao').css('display', 'none');
+        $('#cdPapelExibicao').css('display', 'none');
+        $('#cdVidroExibicao').css('display', 'none');
+
+        $('#divInputFotos').show();
+
+        IniciarSelectsModal();
+
+        LimparCampos();
+
+        $('#modalQuadro').modal('show');
+    }
+
+    function HabilitarCampos () {
+        $('#vlAltura').prop('disabled', false);
+        $('#vlLargura').prop('disabled', false);
+        $('#vlQuantidade').prop('disabled', false);
+        $('#cdFundo').prop('disabled', false);
+        $('#cdMoldura').prop('disabled', false);
+        $('#cdVidro').prop('disabled', false);
+        $('#cdPapel').prop('disabled', false);
+    }
+
+    function DesabilitarCampos () {
+        $('#vlAltura').prop('disabled', true);
+        $('#vlLargura').prop('disabled', true);
+        $('#vlQuantidade').prop('disabled', true);
+        $('#cdFundo').prop('disabled', true);
+        $('#cdMoldura').prop('disabled', true);
+        $('#cdVidro').prop('disabled', true);
+        $('#cdPapel').prop('disabled', true);
+    }
+
     document.getElementById("inputImagem").addEventListener("change", function (event) {
-        var btnSalvar = document.getElementById("btnSalvar");
+
         var previewContainer = document.getElementById("previewContainer");
         var previewImagens = document.getElementById("previewImagens");
 
@@ -148,7 +287,20 @@
 
         previewImagens.innerHTML = "";
 
-        if (files.length > 0 && files.length <= 5) {
+        let qtdFotos = $('#vlQuantidade').val();
+
+        if (typeof qtdFotos === "number" && !isNaN(qtdFotos)) {
+            toastr.error('Preencha o campo quantidade antes de poder adicionar as fotos.', 'Erro ao adicionar fotos!');
+            return;
+        }
+
+        if (files.length > qtdFotos) {
+            toastr.error(`A quantidade de fotos adicionada (${files.length}) eh maior que a quantidade de quadros (${qtdFotos}).`, 'Erro ao adicionar fotos!');
+            document.getElementById("inputImagem").value = "";
+            return;
+        }
+
+        if (files.length > 0 && files.length <= qtdFotos) {
             previewContainer.style.display = "block";
 
             for (let i = 0; i < files.length; i++) {
@@ -170,12 +322,6 @@
                 }
             }
 
-            btnSalvar.disabled = false;
-        } else {
-            previewContainer.style.display = "none";
-            btnSalvar.disabled = true;
-
-            alert("Selecione no máximo 5 imagens.");
         }
     });
 
@@ -208,90 +354,6 @@
             }
         });
 
-        $('#cdFundo').select2({
-            dropdownParent: $('#modalAddQuadro'),
-            placeholder: defaultPlaceholder,
-            minimumInputLength: 3,
-            ajax: {
-                url: '/Order/SearchMaterial',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { text: params.term, type: 'Background' };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.data
-                    };
-                },
-                cache: true,
-                async: true
-            }
-        });
-
-        $('#cdMoldura').select2({
-            dropdownParent: $('#modalAddQuadro'),
-            placeholder: defaultPlaceholder,
-            minimumInputLength: 3,
-            ajax: {
-                url: '/Order/SearchMaterial',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { text: params.term, type: 'Frame' };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.data
-                    };
-                },
-                cache: true,
-                async: true
-            }
-        });
-
-        $('#cdPapel').select2({
-            dropdownParent: $('#modalAddQuadro'),
-            placeholder: defaultPlaceholder,
-            minimumInputLength: 3,
-            ajax: {
-                url: '/Order/SearchMaterial',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { text: params.term, type: 'Paper' };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.data
-                    };
-                },
-                cache: true,
-                async: true
-            }
-        });
-
-        $('#cdVidro').select2({
-            dropdownParent: $('#modalAddQuadro'),
-            placeholder: defaultPlaceholder,
-            minimumInputLength: 3,
-            ajax: {
-                url: '/Order/SearchMaterial',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { text: params.term, type: 'Glass' };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.data
-                    };
-                },
-                cache: true,
-                async: true
-            }
-        });
-
     });
 
     function ValidarQuadro (quadro) {
@@ -303,16 +365,14 @@
             resultado = false;
         }
 
-        if (quadro.cdFundo == 0 || quadro.cdMoldura == 0) {
-            toastr.error(`Os campos 'Fundo' e 'Moldura' são obrigatórios.`, "Erro");
-            resultado = false;
-        }
-
         return resultado;
     }
 
     function AdicionarQuadroTabela (quadro) {
-        let registroQuadro = `<tr><td>${quadro.altura}</td><td>${quadro.largura}</td><td>${quadro.quantidade}</td><td>I</td></tr>`;
+        var indexRegistro = quadros.length - 1;
+        console.log(quadros);
+        console.log(indexRegistro);
+        let registroQuadro = `<tr><td>${quadro.altura}x${quadro.largura}</td><td>${quadro.quantidade}</td><td onclick="ExibirInfo(${indexRegistro})"><i class="fa-solid fa-circle-info"></i></td><td onclick="ExcluirRegistro(${indexRegistro})"><i class="fa-solid fa-trash"></i></td></tr>`;
         $('#bodyTableQuadros').append(registroQuadro);
     }
 
@@ -322,10 +382,22 @@
             altura: $("#vlAltura").val() || 0,
             largura: $("#vlLargura").val() || 0,
             quantidade: $("#vlQuantidade").val() || 0,
-            cdFundo: $('#cdFundo').val() || 0,
-            cdMoldura: $('#cdMoldura').val() || 0,
-            cdVidro: $('#cdVidro').val() || 0,
-            cdPapel: $('#cdPapel').val() || 0,
+            fundo: {
+                id: $('#cdFundo').val() || 0,
+                text: $("#cdFundo option:selected").text() || '',
+            },
+            moldura: {
+                id: $('#cdMoldura').val() || 0,
+                text: $("#cdMoldura option:selected").text() || '',
+            },
+            vidro: {
+                id: $('#cdVidro').val() || 0,
+                text: $("#cdVidro option:selected").text() || '',
+            },
+            papel: {
+                id: $('#cdPapel').val() || 0,
+                text: $("#cdPapel option:selected").text() || '',
+            },
             imagens: $("#inputImagem")[0].files
         };
 
@@ -338,8 +410,97 @@
 
         AdicionarQuadroTabela(quadro);
 
-        console.log(quadros);
+        $('#modalQuadro').modal('hide');
+
+        LimparCampos();
     }
+
+    function LimparCampos() {
+        $('#modalQuadro').modal('hide');
+
+        $("#vlAltura").val("");
+        $("#vlLargura").val("");
+        $("#vlQuantidade").val("1");
+
+        $("#cdFundo").val(null).trigger('change');
+        $("#cdMoldura").val(null).trigger('change');
+        $("#cdVidro").val(null).trigger('change');
+        $("#cdPapel").val(null).trigger('change');
+
+        $("#inputImagem").val("");
+
+        $("#previewImagens").empty();
+        $("#previewContainer").hide();
+
+    }
+
+    function ExibirInfo (index) {
+
+        let quadro = quadros[index];
+
+        $("#vlAltura").val(quadro.altura);
+        $("#vlLargura").val(quadro.largura);
+        $("#vlQuantidade").val(quadro.quantidade);
+
+        $('#cdFundoExibicao').val(quadro.fundo.text);
+        $('#cdFundoExibicao').css('display', 'block');
+        $('#cdFundo').select2('destroy').hide();
+
+        $('#cdMolduraExibicao').val(quadro.moldura.text);
+        $('#cdMolduraExibicao').css('display', 'block');
+        $('#cdMoldura').select2('destroy').hide();
+
+        $('#cdPapelExibicao').val(quadro.papel.text);
+        $('#cdPapelExibicao').css('display', 'block');
+        $('#cdPapel').select2('destroy').hide();
+
+        $('#cdVidroExibicao').val(quadro.vidro.text);
+        $('#cdVidroExibicao').css('display', 'block');
+        $('#cdVidro').select2('destroy').hide();
+
+        $('#divInputFotos').hide();
+
+        var previewContainer = document.getElementById("previewContainer");
+        var previewImagens = document.getElementById("previewImagens");
+
+        previewImagens.innerHTML = "";
+        previewImagens.style.display = 'block';
+
+        for (let i = 0; i < quadro.imagens.length; i++) {
+            let file = quadro.imagens[i];
+
+            if (file.type.startsWith("image/")) {
+                let reader = new FileReader();
+
+                reader.onload = function (e) {
+                    let img = document.createElement("img");
+                    img.src = e.target.result;
+                    img.className = "img-thumbnail";
+                    img.style = "width: 100px; height: auto; border-radius: 5px; margin: 5px;";
+                    console.log(img);
+                    previewImagens.appendChild(img);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+
+
+
+
+        $("#inputImagem").css('display', 'none');
+
+
+        console.log(quadro);
+
+        $('#modalQuadro').modal('show');
+    }
+
+    function ExcluirRegistro (index) {
+        console.log(index);
+    }
+
 
 </script>
 

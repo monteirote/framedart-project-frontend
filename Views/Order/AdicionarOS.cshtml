@@ -103,27 +103,37 @@
     <h1 class="text-center text-lg-start">Adicionar Ordem de Servico</h1>
 
     <div class="row mt-4">
-        <div class="form-group col-lg-3 col-sm-12 mt-3 mt-lg-0">
+        <div class="form-group col-lg-6 col-sm-12 mt-3 mt-lg-0">
             <label for="exampleFormControlInput2">Numero da OS</label>
-            <input type="text" class="form-control">
-        </div>
-
-        <div class="form-group col-lg-3 col-sm-12 mt-3 mt-lg-0">
-            <label for="exampleFormControlInput2">Data de Entrega</label>
-            <input type="datetime" class="form-control" id="dtEntrega" placeholder="dia/mês/ano">
+            <input type="text" class="form-control" id="dsNumeroOS">
         </div>
 
         <div class="form-group col-lg-6 col-sm-12">
-            <label for="exampleFormControlInput1">Cliente</label><br />
+            <label for="dsPrioridade">Prioridade</label><br />
+            <select class="form-control" id="dsPrioridade">
+                <option value="0">Selecione</option>
+                <option value="low">Baixa</option>
+                <option value="medium">Média</option>
+                <option value="high">Alta</option>
+            </select>
+        </div>
+
+        <div class="form-group col-lg-6 col-sm-12">
+            <label for="cdCliente">Cliente</label><br />
             <select class="form-control" id="cdCliente"></select>
             <small>Para adicionar um cliente, clique <a href="">aqui</a></small>
+        </div>
+
+        <div class="form-group col-lg-6 col-sm-12 mt-3 mt-lg-0">
+            <label for="dtEntrega">Data de Entrega</label>
+            <input type="datetime" class="form-control" id="dtEntrega" placeholder="dia/mês/ano">
         </div>
 
     </div>
 
 
     <div class="mt-4 d-flex flex-row align-items-center">
-        <p class="subtitulo m-0 me-3">Quadros</p>
+        <p class="subtitulo m-0 me-3 mb-2">Quadros</p>
         <button class="btn-secondary" onclick="AbrirModalAdicionar()"><i class="fa fa-add"></i></button>
     </div>
 
@@ -141,10 +151,19 @@
         </tbody>
     </table>
 
+    <div class="d-flex justify-content-end row mt-lg-5 mt-sm-0">
+        <button class="col-sm-12 col-lg-3 btn btn-secondary p-2 mt-3 mt-lg-0" style="font-size: 1.5rem">
+            Limpar campos <i class="fa fa-eraser ms-3"></i>
+        </button>
+
+        <button class="col-sm-12 col-lg-3 btn btn-primary mt-3 mt-lg-0 ms-3 ms-s-0" style="font-size: 1.5rem" onclick="SaveOrder()">
+            Salvar <i class="fa fa-save ms-3"></i>
+        </button>
+    </div>
 
 </div>
 
-<script src="~/js/AdicionarOS_JS.js" ></script>
+<script src="~/js/addOS.js" ></script>
 <script>
 
     const defaultPlaceholder = 'Digite os 3 primeiros caracteres';
@@ -182,7 +201,7 @@
 
     })
 
-    function AbrirModalAdicionar () { 
+    function AbrirModalAdicionar () {
         HabilitarCampos();
 
         $('#cdFundo').show().select2();
@@ -283,8 +302,15 @@
         return resultado;
     }
 
-    function AdicionarQuadroTabela (quadro) {
+    function AdicionarQuadroTabela(quadro) {
         var indexRegistro = quadros.length - 1;
+
+        console.log(indexRegistro)
+
+        if (indexRegistro == 0) {
+            $('#bodyTableQuadros').html('');
+        }
+
         let registroQuadro = `<tr><td>${quadro.altura}x${quadro.largura}</td><td>${quadro.quantidade}</td><td onclick="ExibirInfo(${indexRegistro})"><i class="fa-solid fa-circle-info"></i></td><td onclick="ExcluirRegistro(${indexRegistro})"><i class="fa-solid fa-trash"></i></td></tr>`;
 
 
@@ -324,6 +350,32 @@
         quadros.push(quadro);
 
         AdicionarQuadroTabela(quadro);
+
+        let quadroFormatado = {
+            height: quadro.altura,
+            width: quadro.largura,
+            price: null,
+            glassId: quadro.vidro.id,
+            frameID: quadro.moldura.id,
+            backgroundId: quadro.fundo.id,
+            paperId: quadro.papel.id,
+            images: quadro.imagens
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("CreateOrder", "Order")',
+            data: quadroFormatado,
+            success: function (response) {
+                console.log('Sucesso:', response);
+                alert('Quadro salvo com sucesso!');
+            },
+            error: function (xhr, status, error) {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao salvar o quadro.');
+            }
+        });
+
 
         $('#modalQuadro').modal('hide');
 
@@ -419,6 +471,10 @@
         if (quadrosHTML.children.length == 0) {
             $('#bodyTableQuadros').html('<tr><td colspan="4" style="color: red">Sem quadros adicionados</td></tr>');
         }
+    }
+
+    function SaveOrder() {
+        SubmitOrder(quadros);
     }
 
 

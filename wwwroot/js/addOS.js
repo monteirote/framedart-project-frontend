@@ -83,3 +83,27 @@
 
 }
 
+function SubmitOrder (framedArtworks) {
+
+    let order = {
+        reference: $('#dsNumeroOS').val(),
+        priority: $('#dsPrioridade').val(),
+        customerId: $('#cdCliente').val(),
+        totalPrice: 0,
+        expectedDeliveryDate: $('#dtEntrega').val(),
+        framedArtworks: framedArtworks
+    };
+
+    $.ajax({
+        type: 'POST',
+        data: order,
+        url: '/Order/CreateOrder',
+        success: function (data) {
+            console.log(data);
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+
+}

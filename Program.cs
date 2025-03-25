@@ -9,9 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<AuthService>();
 builder.Services.AddHttpClient<SearchService>();
+builder.Services.AddHttpClient<OrderService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddControllersWithViews();
 

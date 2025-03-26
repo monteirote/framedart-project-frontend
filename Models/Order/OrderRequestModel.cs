@@ -10,6 +10,6 @@ namespace framedart_project_frontend.Models.Order {
         public decimal TotalPrice { get; set; }
         public int CustomerId { get; set; }
         public DateTime ExpectedDeliveryDate { get; set; }
-        public List<FramedArtworkModel> FramedArtworks { get; set; }
+        public List<FramedArtworkModel> FramedArtworks { get; set; } = [];
     }
 }

@@ -31,9 +31,10 @@ namespace framedart_project_frontend.Controllers {
             return Json(results);
         }
 
-        public async Task<JsonResult> CreateOrder (OrderRequestModel order) {
+        [HttpPost]
+        public async Task<JsonResult> CreateOrder ([FromBody] OrderRequestModel order) {
             var results = await _orderService.SubmitOrder(order);
-            return Json(results);
+            return Json (results);
         }
 
     }

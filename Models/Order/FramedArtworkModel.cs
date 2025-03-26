@@ -12,6 +12,6 @@ namespace framedart_project_frontend.Models.Order {
         public int? FrameId { get; set; }
         public int? PaperId { get; set; }
         public int? BackgroundId { get; set; }
-        public List<IFormFile> Images { get; set; } = [];
+        public List<string> Images { get; set; } = [];
     }
 }

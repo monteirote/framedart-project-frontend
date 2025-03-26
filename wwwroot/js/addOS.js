@@ -83,7 +83,20 @@
 
 }
 
-function SubmitOrder (framedArtworks) {
+function convertImagesToBase64 (files) {
+    return Promise.all(files.map(file => fileToBase64(file)));
+}
+
+function fileToBase64 (file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]); // Retorna apenas a parte Base64
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+    });
+}
+
+async function SubmitOrder(framedArtworks) {
 
     let order = {
         reference: $('#dsNumeroOS').val(),
@@ -91,19 +104,32 @@ function SubmitOrder (framedArtworks) {
         customerId: $('#cdCliente').val(),
         totalPrice: 0,
         expectedDeliveryDate: $('#dtEntrega').val(),
-        framedArtworks: framedArtworks
+        framedArtworks: FormattingFramedArtworks(framedArtworks)
     };
 
     $.ajax({
         type: 'POST',
-        data: order,
         url: '/Order/CreateOrder',
+        data: JSON.stringify(order), 
+        contentType: 'application/json',
         success: function (data) {
-            console.log(data);
+            console.log('Sucesso:', data);
         },
         error: function (error) {
-            console.log(error);
+            console.error('Erro:', error);
         }
     });
+}
 
+function FormattingFramedArtworks(framedArtworks) {
+    return framedArtworks.map(x => ({
+        width: x.largura,
+        height: x.altura,
+        price: 0,
+        glassId: x.vidro.id,
+        frameId: x.moldura.id,
+        backgroundId: x.fundo.id,
+        paperId: x.papel.id,
+        images: x.imagens
+    }));
 }

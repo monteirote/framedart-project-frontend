@@ -317,7 +317,11 @@
         $('#bodyTableQuadros').append(registroQuadro);
     }
 
-    function SalvarQuadro() {
+    async function SalvarQuadro() {
+
+        let files = $('#inputImagem').prop('files');
+
+        let imagensBase64 = await convertImagesToBase64(Array.from(files));
 
         let quadro = {
             altura: $("#vlAltura").val() || 0,
@@ -339,46 +343,17 @@
                 id: $('#cdPapel').val() || 0,
                 text: $("#cdPapel option:selected").text() || '',
             },
-            imagens: Array.from($('#inputImagem').prop('files'))
+            imagens: imagensBase64 
         };
 
         var quadroValido = ValidarQuadro(quadro);
-
-        if (!quadroValido)
-            return;
+        if (!quadroValido) return;
 
         quadros.push(quadro);
 
         AdicionarQuadroTabela(quadro);
 
-        let quadroFormatado = {
-            height: quadro.altura,
-            width: quadro.largura,
-            price: null,
-            glassId: quadro.vidro.id,
-            frameID: quadro.moldura.id,
-            backgroundId: quadro.fundo.id,
-            paperId: quadro.papel.id,
-            images: quadro.imagens
-        };
-
-        $.ajax({
-            type: 'POST',
-            url: '@Url.Action("CreateOrder", "Order")',
-            data: quadroFormatado,
-            success: function (response) {
-                console.log('Sucesso:', response);
-                alert('Quadro salvo com sucesso!');
-            },
-            error: function (xhr, status, error) {
-                console.error('Erro:', error);
-                alert('Ocorreu um erro ao salvar o quadro.');
-            }
-        });
-
-
         $('#modalQuadro').modal('hide');
-
         LimparCampos();
     }
 
@@ -400,63 +375,55 @@
         $("#previewContainer").hide();
     }
 
-    function ExibirInfo (index) {
+    function ExibirInfo(index) {
+    let quadro = quadros[index];
 
-        let quadro = quadros[index];
+    console.log(quadro);
 
-        console.log(quadro);
+    // Preencher os campos do formulário com os dados do quadro
+    $("#vlAltura").val(quadro.altura);
+    $("#vlLargura").val(quadro.largura);
+    $("#vlQuantidade").val(quadro.quantidade);
 
-        $("#vlAltura").val(quadro.altura);
-        $("#vlLargura").val(quadro.largura);
-        $("#vlQuantidade").val(quadro.quantidade);
+    $('#cdFundoExibicao').val(quadro.fundo.text);
+    $('#cdFundoExibicao').css('display', 'block');
+    $('#cdFundo').select2('destroy').hide();
 
-        $('#cdFundoExibicao').val(quadro.fundo.text);
-        $('#cdFundoExibicao').css('display', 'block');
-        $('#cdFundo').select2('destroy').hide();
+    $('#cdMolduraExibicao').val(quadro.moldura.text);
+    $('#cdMolduraExibicao').css('display', 'block');
+    $('#cdMoldura').select2('destroy').hide();
 
-        $('#cdMolduraExibicao').val(quadro.moldura.text);
-        $('#cdMolduraExibicao').css('display', 'block');
-        $('#cdMoldura').select2('destroy').hide();
+    $('#cdPapelExibicao').val(quadro.papel.text);
+    $('#cdPapelExibicao').css('display', 'block');
+    $('#cdPapel').select2('destroy').hide();
 
-        $('#cdPapelExibicao').val(quadro.papel.text);
-        $('#cdPapelExibicao').css('display', 'block');
-        $('#cdPapel').select2('destroy').hide();
+    $('#cdVidroExibicao').val(quadro.vidro.text);
+    $('#cdVidroExibicao').css('display', 'block');
+    $('#cdVidro').select2('destroy').hide();
 
-        $('#cdVidroExibicao').val(quadro.vidro.text);
-        $('#cdVidroExibicao').css('display', 'block');
-        $('#cdVidro').select2('destroy').hide();
+    $('#divInputFotos').hide();
 
-        $('#divInputFotos').hide();
+    var previewContainer = document.getElementById("previewContainer");
+    var previewImagens = document.getElementById("previewImagens");
 
-        var previewContainer = document.getElementById("previewContainer");
-        var previewImagens = document.getElementById("previewImagens");
+    previewImagens.innerHTML = ""; 
+    previewImagens.style.display = 'block';
+    previewContainer.style.display = 'block';
 
-        previewImagens.innerHTML = "";
-        previewImagens.style.display = 'block';
-        previewContainer.style.display = 'block';
+    for (let i = 0; i < quadro.imagens.length; i++) {
+        let base64Image = quadro.imagens[i]; 
 
-        for (let i = 0; i < quadro.imagens.length; i++) {
-            let file = quadro.imagens[i];
-
-            if (file.type.startsWith("image/")) {
-                let reader = new FileReader();
-
-                reader.onload = function (e) {
-                    let img = document.createElement("img");
-                    img.src = e.target.result;
-                    img.className = "img-thumbnail";
-                    img.style = "width: 100px; height: auto; border-radius: 5px; margin: 5px;";
-                    previewImagens.appendChild(img);
-                };
-
-                reader.readAsDataURL(file);
-            }
-        }
-
-        $("#inputImagem").css('display', 'none');
-
-        $('#modalQuadro').modal('show');
+        let img = document.createElement("img");
+        img.src = `data:image/jpeg;base64,${base64Image}`; 
+        img.className = "img-thumbnail";
+        img.style = "width: 100px; height: auto; border-radius: 5px; margin: 5px;";
+        previewImagens.appendChild(img); 
     }
+
+    $("#inputImagem").css('display', 'none');
+
+    $('#modalQuadro').modal('show');
+}
 
     function ExcluirRegistro(index) {
         quadros.splice(index, 1);

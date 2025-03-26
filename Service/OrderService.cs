@@ -19,7 +19,7 @@ namespace framedart_project_frontend.Service {
         }
 
         public async Task<ApiResponse<string>> SubmitOrder (OrderRequestModel orderToSubmit) {
-            try{
+            try {
                 HttpResponseMessage response = await _httpClient.PostAsJsonAsync("Order", orderToSubmit);
                 response.EnsureSuccessStatusCode(); 
 
@@ -30,14 +30,14 @@ namespace framedart_project_frontend.Service {
                     Data = jsonResponse,
                     Message = "Order submitted successfully."
                 };
-            }
-            catch (HttpRequestException httpEx) {
-                // Tratar erros específicos de HTTP (ex.: 400 Bad Request, 500 Internal Server Error)
+
+            } catch (HttpRequestException httpEx) {
                 return new ApiResponse<string> {
                     Success = false,
                     Data = null,
                     Message = $"HTTP error occurred: {httpEx.Message}"
                 };
+
             } catch (Exception ex) {
                 return new ApiResponse<string> {
                     Success = false,
